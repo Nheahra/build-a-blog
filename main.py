@@ -13,9 +13,10 @@ class Blog(db.Model):
     title = db.Column(db.String(120))
     body = db.Column(db.String(5000))
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, id):
         self.title = title
         self.body = body
+        self.id = id
 
 @app.route('/newpost', methods=['POST','GET'])
 def post_blog():
@@ -50,22 +51,25 @@ def post_blog():
             db.session.add(new_post)
             db.session.commit()
 
-            blog_id = {
+            blog = {
                 'title' : title,
                 'body' : body
             }
             
-            return render_template('post.html', blog_id=blog_id)
+            return render_template('post.html', blog=blog)
 
     return render_template('newpost.html')
 
+@app.route('/blog')
+def disp_blog():
+    #Now that I've clicked on a blog entry from the main page's list I have an ID that I want to retrieve. How do I query my database to get just that id as an object to pass into post.html?
+    blog_id = request.args.get('id')
+    blog = Blog.query.get(blog_id)
+    
+    return render_template('post.html', blog=blog)
+
 @app.route('/', methods=['POST','GET'])
 def index():
-    if request.method == 'POST':
-        blog_id = request.args.get['id']
-
-        return render_template('post.html', blog_id=blog_id)
-
 
     blog = Blog.query.all()
     encoded_error = request.args.get('error')
